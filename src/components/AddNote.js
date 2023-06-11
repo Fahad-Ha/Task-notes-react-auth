@@ -2,21 +2,27 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { createNote } from "../api/notes";
 
-const AddNote = ({ show, onClose, onSave }) => {
+const AddNote = ({ show, onClose }) => {
   const [title, setTitle] = useState("");
   const [topics, setTopics] = useState([]);
   const [body, setBody] = useState("");
   const queryClient = useQueryClient();
+
+  console.log(title);
   const { mutate: addNote } = useMutation({
-    mutationFn: () =>
+    mutationFn: () => {
       createNote({
         title,
         topic: topics,
         body,
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(["notes"]);
       onClose();
+      setTitle("");
+      setTopics([]);
+      setBody("");
     },
   });
   const handleTitleChange = (e) => {
@@ -46,9 +52,6 @@ const AddNote = ({ show, onClose, onSave }) => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     addNote();
-    setTitle("");
-    setTopics([]);
-    setBody("");
   };
 
   if (!show) {
